@@ -7,8 +7,8 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
-	"time"
 	"strings"
+	"time"
 )
 
 // Dealer type manage the procedure of the game
@@ -118,6 +118,7 @@ func (d *Dealer) gaming() {
 		for id, p := range d.players {
 			r := d.getResult(p.guess(id))
 			p.addResult(r)
+			fmt.Printf("Player %v: %vA%vB\n", p.getID(), r[0], r[1])
 			if r == [2]int8{d.ansSize, 0} {
 				win = p.getID()
 			}
