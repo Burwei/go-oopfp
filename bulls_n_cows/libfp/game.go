@@ -18,8 +18,7 @@ type GameInfo struct {
 	players []func(int8) *PlayerInfo
 }
 
-// StartNewGame starts a new game
-func StartNewGame() {
+func startNewGame() {
 	// get size of the answer
 	fmt.Println("Please enter the size of the answer:")
 	reader := bufio.NewReader(os.Stdin)
@@ -140,13 +139,13 @@ func gaming(ginfo *GameInfo) (int8, int16) {
 // Run will start running the game service
 func Run() {
 	reader := bufio.NewReader(os.Stdin)
-	StartNewGame()
+	startNewGame()
 	for {
 		fmt.Println("Play again?(Y/N):")
 		inputStr, _ := reader.ReadString('\n')
 		inputStr = inputStr[:len(inputStr)-1] // remove \n
 		if inputStr == "Y" || inputStr == "y" {
-			StartNewGame()
+			startNewGame()
 		} else if inputStr == "N" || inputStr == "n" {
 			fmt.Println("Thanks for playing, bye!!")
 			break
