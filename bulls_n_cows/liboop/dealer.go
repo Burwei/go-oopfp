@@ -140,13 +140,13 @@ func (d *Dealer) gaming() {
 // Run will start the gaming event-loop
 func (d *Dealer) Run() {
 	reader := bufio.NewReader(os.Stdin)
-	d.startNewGame()
+	d.StartNewGame()
 	for {
 		fmt.Println("Play again?(Y/N):")
 		inputStr, _ := reader.ReadString('\n')
 		inputStr = inputStr[:len(inputStr)-1] // remove \n
 		if inputStr == "Y" || inputStr == "y" {
-			d.startNewGame()
+			d.StartNewGame()
 		} else if inputStr == "N" || inputStr == "n" {
 			fmt.Println("Thanks for playing, bye!!")
 			break
