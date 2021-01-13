@@ -13,7 +13,7 @@ type HumanPlayer struct {
 	BasePlayer
 }
 
-func (p *HumanPlayer) guess(playerID int) string {
+func (p *HumanPlayer) guess(size int8) string {
 	g := ""
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Please enter a number:")
@@ -26,7 +26,7 @@ func (p *HumanPlayer) guess(playerID int) string {
 			break
 		}
 	}
-	for err != nil || int8(len(inputStr)) != p.ansSize || n < 0 {
+	for err != nil || int8(len(inputStr)) != size || n < 0 {
 		fmt.Println("The number is incorrect, please try again:")
 		inputStr, _ = reader.ReadString('\n')
 		inputStr = inputStr[:len(inputStr)-1] // remove \n

@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+/** This file contains functions that related to the game flow
+ *  Use Run() to run the game service continously,
+ *  and use StartNewGame to start a individual game.
+ */
+
 // GameInfo is the info of a game
 type GameInfo struct {
 	ansSize int8
@@ -18,7 +23,8 @@ type GameInfo struct {
 	players []func(int8) *PlayerInfo
 }
 
-func startNewGame() {
+// StartNewGame starts a new game
+func StartNewGame() {
 	// get size of the answer
 	fmt.Println("Please enter the size of the answer:")
 	reader := bufio.NewReader(os.Stdin)
@@ -53,10 +59,10 @@ func startNewGame() {
 
 func newGameInfo(size int8, cpn int8) GameInfo {
 	players := []func(int8) *PlayerInfo{}
-	hp := NewPlayerGuess(int8(0), "human")
+	hp := NewHumanPlayerGuess(int8(0))
 	players = append(players, hp)
 	for i := 0; i < int(cpn); i++ {
-		players = append(players, NewPlayerGuess(int8(i), "computer"))
+		players = append(players, NewComputerPlayerGuess(int8(i)))
 	}
 	return GameInfo{
 		size,
@@ -139,13 +145,13 @@ func gaming(ginfo *GameInfo) (int8, int16) {
 // Run will start running the game service
 func Run() {
 	reader := bufio.NewReader(os.Stdin)
-	startNewGame()
+	StartNewGame()
 	for {
 		fmt.Println("Play again?(Y/N):")
 		inputStr, _ := reader.ReadString('\n')
 		inputStr = inputStr[:len(inputStr)-1] // remove \n
 		if inputStr == "Y" || inputStr == "y" {
-			startNewGame()
+			StartNewGame()
 		} else if inputStr == "N" || inputStr == "n" {
 			fmt.Println("Thanks for playing, bye!!")
 			break

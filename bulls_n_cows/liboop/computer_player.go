@@ -12,8 +12,8 @@ type ComputerPlayer struct {
 	BasePlayer
 }
 
-func (p *ComputerPlayer) guess(playerID int) string {
-	ans := rand.Intn(int(math.Pow(10, float64(p.ansSize)))) - 1
+func (p *ComputerPlayer) guess(size int8) string {
+	ans := rand.Intn(int(math.Pow(10, float64(size)))) - 1
 	ansStr := strconv.FormatInt(int64(ans), 10)
 	for _, char := range ansStr {
 		if strings.Count(ansStr, string(char)) > 1 {
@@ -22,7 +22,7 @@ func (p *ComputerPlayer) guess(playerID int) string {
 		}
 	}
 	for ans < 0 {
-		ans = rand.Intn(int(math.Pow(10, float64(p.ansSize)))) - 1
+		ans = rand.Intn(int(math.Pow(10, float64(size)))) - 1
 		ansStr = strconv.FormatInt(int64(ans), 10)
 		for _, char := range ansStr {
 			if strings.Count(ansStr, string(char)) > 1 {

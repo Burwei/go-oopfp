@@ -7,18 +7,16 @@ import (
 // Player is the interface of the players
 type Player interface {
 	addResult([2]int8)
-	guess(int) string
+	guess(int8) string
 	getID() int8
 	setID(int8)
-	setAnsSize(int8)
 	getGuesses() []string
 	getResults() []string
 }
 
-// BasePlayer is the base class of all kind of players
+// BasePlayer is the base class of all type of players
 type BasePlayer struct {
 	id      int8
-	ansSize int8
 	guesses []string
 	results []string
 }
@@ -34,10 +32,6 @@ func (p *BasePlayer) getID() int8 {
 
 func (p *BasePlayer) setID(i int8){
 	p.id = i
-}
-
-func (p *BasePlayer) setAnsSize(s int8){
-	p.ansSize = s
 }
 
 func (p *BasePlayer) getGuesses() []string {

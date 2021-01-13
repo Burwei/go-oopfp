@@ -16,14 +16,12 @@ type Dealer struct {
 	ansSize int8
 	ans     map[byte]int8 // map[val]idx, where idx is in [0,ansSize), val is ascii
 	players []Player
-	round   int16
 }
 
 func (d *Dealer) init() {
 	d.ansSize = 0
 	d.ans = map[byte]int8{}
 	d.players = []Player{}
-	d.round = 0
 }
 
 func (d *Dealer) startNewGame() {
@@ -46,7 +44,6 @@ func (d *Dealer) startNewGame() {
 	// add one human player
 	p := &HumanPlayer{BasePlayer{}}
 	p.setID(playerID)
-	p.setAnsSize(d.ansSize)
 	d.players = append(d.players, p)
 	playerID++
 	// add computer players
@@ -63,7 +60,6 @@ func (d *Dealer) startNewGame() {
 	for i := 0; i < int(cpn); i++ {
 		p := &ComputerPlayer{BasePlayer{}}
 		p.setID(playerID)
-		p.setAnsSize(d.ansSize)
 		d.players = append(d.players, p)
 		playerID++
 	}
@@ -113,29 +109,30 @@ func (d *Dealer) getResult(guess string) [2]int8 {
 func (d *Dealer) gaming() {
 	win := int8(-1)
 	hp := d.players[0]
+	round := int16(0)
 	fmt.Println("------ Game starts!! ------ ")
 	for {
 		for id, p := range d.players {
-			r := d.getResult(p.guess(id))
+			r := d.getResult(p.guess(d.ansSize))
 			p.addResult(r)
-			fmt.Printf("Player %v: %vA%vB\n", p.getID(), r[0], r[1])
+			fmt.Printf("Player %v: %vA%vB\n", id, r[0], r[1])
 			if r == [2]int8{d.ansSize, 0} {
-				win = p.getID()
+				win = int8(id)
 			}
 		}
 		fmt.Println("Your guesses:")
-		for i := int16(0); i <= d.round; i++ {
+		for i := int16(0); i <= round; i++ {
 			fmt.Printf("%v : %v\n", hp.getGuesses()[i], hp.getResults()[i])
 		}
+		round++
 		if win != -1 {
 			break
 		}
-		d.round++
 	}
 	if win == 0 {
-		fmt.Printf("You win the game. Takes %v rounds.\n", d.round+1)
+		fmt.Printf("You win the game. Takes %v rounds.\n", round)
 	} else {
-		fmt.Printf("Player %v win the game. Takes %v rounds.\n", win, d.round+1)
+		fmt.Printf("Player %v win the game. Takes %v rounds.\n", win, round)
 	}
 }
 
