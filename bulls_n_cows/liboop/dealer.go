@@ -24,7 +24,8 @@ func (d *Dealer) init() {
 	d.players = []Player{}
 }
 
-func (d *Dealer) startNewGame() {
+// StartNewGame starts a nwe game
+func (d *Dealer) StartNewGame() {
 	// init the dealer
 	d.init()
 	// get size of the answer
