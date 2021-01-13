@@ -1,8 +1,10 @@
 package main
 
-import "./liboop"
+// import "./liboop"
+import "./libfp"
 
 func main(){
-	d := liboop.Dealer{} 
-	d.Run()
+	// d := liboop.Dealer{} 
+	// d.Run()
+	libfp.Run()
 }

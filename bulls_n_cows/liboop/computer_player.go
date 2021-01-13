@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// ComputerPlayer takes the user input
+// ComputerPlayer guess by computing
 type ComputerPlayer struct {
 	BasePlayer
 }
