@@ -1,3 +1,8 @@
+/** This file contains functions that related to the game flow
+ *  Use Run() to run the game service continously,
+ *  and use StartGaming to start a individual game.
+ */
+
 package libfp
 
 import (
@@ -11,20 +16,14 @@ import (
 	"time"
 )
 
-/** This file contains functions that related to the game flow
- *  Use Run() to run the game service continously,
- *  and use StartNewGame to start a individual game.
- */
-
 // GameInfo is the info of a game
 type GameInfo struct {
-	ansSize int8
-	ans     map[byte]int8 // map[val]idx, where idx is in [0,ansSize), val is ascii
-	players []func(int8) *PlayerInfo
+	ansSize      int8                 // size of the answer
+	ans          map[byte]int8        // map[val]idx, where idx is in [0,ansSize), val is ascii
+	guessMethods []func(int8) *Player // players' guess methods
 }
 
-// StartNewGame starts a new game
-func StartNewGame() {
+func getGameInfoFromStdin() GameInfo {
 	// get size of the answer
 	fmt.Println("Please enter the size of the answer:")
 	reader := bufio.NewReader(os.Stdin)
@@ -48,26 +47,19 @@ func StartNewGame() {
 		inputStr = inputStr[:len(inputStr)-1] // remove \n
 		cpn, err = strconv.ParseInt(inputStr, 10, 8)
 	}
-	ginfo := newGameInfo(int8(ansSize), int8(cpn))
-	winner, round := gaming(&ginfo)
-	if winner == 0 {
-		fmt.Printf("You win the game. Takes %v rounds.\n", round)
-	} else {
-		fmt.Printf("Player %v win the game. Takes %v rounds.\n", winner, round)
-	}
+	return newGameInfo(int8(ansSize), int8(cpn))
 }
 
-func newGameInfo(size int8, cpn int8) GameInfo {
-	players := []func(int8) *PlayerInfo{}
-	hp := NewHumanPlayerGuess(int8(0))
-	players = append(players, hp)
+func newGameInfo(ansSize int8, cpn int8) GameInfo {
+	guesses := []func(int8) *Player{}
+	guesses = append(guesses, NewHumanPlayerGuessMethod(int8(0)))
 	for i := 0; i < int(cpn); i++ {
-		players = append(players, NewComputerPlayerGuess(int8(i)))
+		guesses = append(guesses, NewComputerPlayerGuessMethod(int8(i)))
 	}
 	return GameInfo{
-		size,
-		generateAns(size),
-		players,
+		ansSize,
+		generateAns(ansSize),
+		guesses,
 	}
 }
 
@@ -112,46 +104,59 @@ func getResult(ginfo *GameInfo, guess string) [2]int8 {
 	return result
 }
 
-func gaming(ginfo *GameInfo) (int8, int16) {
+// StartGaming starts the game loop until there's a winner
+func StartGaming(ginfo GameInfo) (int8, int16) {
 	winner := int8(-1)
-	round := int16(0)
+	rounds := int16(0)
 	fmt.Println("------ Game starts!! ------ ")
 	for {
-		var yourInfo *PlayerInfo
-		for id, p := range ginfo.players {
-			pinfo := p(ginfo.ansSize)
+		var you *Player
+		for id, guessAndUpdate := range ginfo.guessMethods {
+			player := guessAndUpdate(ginfo.ansSize) // get updated player by taking a new guess
 			if id == 0 {
-				yourInfo = pinfo
+				you = player
 			}
-			r := getResult(ginfo, pinfo.guesses[round])
+			r := getResult(&ginfo, player.guesses[rounds])
 			rstr := fmt.Sprintf("%v%v%v%v", r[0], "A", r[1], "B")
-			pinfo.results = append(pinfo.results, rstr)
+			player.results = append(player.results, rstr)
 			fmt.Printf("Player %v: %vA%vB\n", id, r[0], r[1])
 			if r == [2]int8{ginfo.ansSize, 0} {
 				winner = int8(id)
 			}
 		}
 		fmt.Println("Your guesses:")
-		for i := int16(0); i <= round; i++ {
-			fmt.Printf("%v : %v\n", yourInfo.guesses[i], yourInfo.results[i])
+		for i := int16(0); i <= rounds; i++ {
+			fmt.Printf("%v : %v\n", you.guesses[i], you.results[i])
 		}
-		round++
+		rounds++
 		if winner != -1 {
-			return winner, round
+			return winner, rounds
 		}
 	}
+}
+
+func newResultMsg(winner int8, rounds int16) string {
+	if winner == 0 {
+		return fmt.Sprintf("You win the game. Takes %v rounds.\n", rounds)
+	}
+	return fmt.Sprintf("Player %v win the game. Takes %v rounds.\n", winner, rounds)
+
 }
 
 // Run will start running the game service
 func Run() {
 	reader := bufio.NewReader(os.Stdin)
-	StartNewGame()
+	ginfo := getGameInfoFromStdin()
+	winner, rounds := StartGaming(ginfo)
+	fmt.Printf(newResultMsg(winner, rounds))
 	for {
 		fmt.Println("Play again?(Y/N):")
 		inputStr, _ := reader.ReadString('\n')
 		inputStr = inputStr[:len(inputStr)-1] // remove \n
 		if inputStr == "Y" || inputStr == "y" {
-			StartNewGame()
+			ginfo = getGameInfoFromStdin()
+			winner, rounds = StartGaming(ginfo)
+			fmt.Printf(newResultMsg(winner, rounds))
 		} else if inputStr == "N" || inputStr == "n" {
 			fmt.Println("Thanks for playing, bye!!")
 			break
